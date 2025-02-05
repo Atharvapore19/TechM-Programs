@@ -1,0 +1,68 @@
+package com.Thread;
+
+import java.util.Arrays;
+
+class SortThread extends Thread {
+    private int[] arr;
+
+    public SortThread(int[] arr) {
+        this.arr = arr;
+    }
+
+    public void run() {
+        Arrays.sort(arr);
+    }
+
+    public int[] getSortedArray() {
+        return arr;
+    }
+}
+
+public class MultiThreadSorting {
+    public static void main(String[] args) {
+        int[] array = {9, 3, 7, 1, 8, 5, 2, 6, 4};
+
+        int mid = array.length / 2;
+        int[] firstHalf = Arrays.copyOfRange(array, 0, mid);
+        int[] secondHalf = Arrays.copyOfRange(array, mid, array.length);
+
+        SortThread thread1 = new SortThread(firstHalf);
+        SortThread thread2 = new SortThread(secondHalf);
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int[] sortedArray = merge(thread1.getSortedArray(), thread2.getSortedArray());
+        System.out.println("Sorted Array: " + Arrays.toString(sortedArray));
+    }
+
+    private static int[] merge(int[] arr1, int[] arr2) {
+        int[] merged = new int[arr1.length + arr2.length];
+        int i = 0, j = 0, k = 0;
+
+        while (i < arr1.length && j < arr2.length) {
+            if (arr1[i] < arr2[j]) {
+                merged[k++] = arr1[i++];
+            } else {
+                merged[k++] = arr2[j++];
+            }
+        }
+
+        while (i < arr1.length) {
+            merged[k++] = arr1[i++];
+        }
+
+        while (j < arr2.length) {
+            merged[k++] = arr2[j++];
+        }
+
+        return merged;
+    }
+}
